@@ -14,6 +14,7 @@ public class Player : MovingObject
     public int pointsPerFood = 10;
     public int pointsPerSoda = 20;
     public float restartLevelDelay = 1f;
+    public static readonly float MoveAnimationTime = 1f;
 
     private Animator animator;
     private int food;
@@ -24,20 +25,20 @@ public class Player : MovingObject
     {
         animator = GetComponent<Animator>();
 
-        food = GameManager.instance.playerFoodPoint;
+        food = Loader.instance.playerFoodPoint;
         
         base.Start();
     }
 
     private void OnDisable()
     {
-        GameManager.instance.playerFoodPoint = food;
+        Loader.instance.playerFoodPoint = food;
     }
     
     // Update is called once per frame
     void Update()
     {
-        if (!GameManager.instance.playerTurn) return;
+        if (!Loader.instance.playerTurn) return;
 
         var horizontal = (int) Input.GetAxisRaw(HORIZONTAL);
         var vertical =  (int) Input.GetAxisRaw(VERTICAL);
@@ -56,7 +57,7 @@ public class Player : MovingObject
         base.AttemptMove<T>(xDir, yDir);
         RaycastHit2D hit;
         CheckIfGameOver();
-        GameManager.instance.playerTurn = false;
+        Loader.instance.playerTurn = false;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -64,7 +65,7 @@ public class Player : MovingObject
         switch (other.tag)
         {
             case "Exit":
-                Invoke("Restart", restartLevelDelay);
+                Invoke(nameof(Restart), restartLevelDelay);
                 break;
             case "Food":
                 food += pointsPerFood;
@@ -89,7 +90,7 @@ public class Player : MovingObject
 
     private void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void LoseFood(int loss)
@@ -101,6 +102,6 @@ public class Player : MovingObject
 
     private void CheckIfGameOver()
     {
-        if(food <= 0) GameManager.instance.GameOver();
+        if(food <= 0) Loader.instance.GameOver();
     }
 }

@@ -6,30 +6,25 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public float turnDelay = .1f;
-    public static GameManager instance = null;
     public BoardManager boardScript;
     public int playerFoodPoint = 100;
     [HideInInspector] public bool playerTurn = true;
 
-    private int level = 3;
+    private int level;
     private List<Enemy> enemies;
     private bool enemiesMoving;
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        
-        DontDestroyOnLoad(gameObject);
+        level = Loader.level++;
+        Loader.instance = this;
         enemies = new List<Enemy>();
         boardScript = GetComponent<BoardManager>();
         InitGame();
+    }
+
+    public void ReloadScene()
+    {
     }
 
     private void InitGame()
@@ -62,15 +57,16 @@ public class GameManager : MonoBehaviour
     {
         enemiesMoving = true;
         yield return new WaitForSeconds(turnDelay);
-        if (enemies.Count == 0)
-        {
-            yield return new WaitForSeconds(turnDelay);
-        }
 
         foreach (var enemy in enemies)
         {
             enemy.MoveEnemy();
             yield return new WaitForSeconds(enemy.moveTime);
+        }
+        
+        if (enemies.Count < Player.MoveAnimationTime)
+        {
+            yield return new WaitForSeconds(Player.MoveAnimationTime - (enemies.Count * 0.1f));
         }
 
         playerTurn = true;

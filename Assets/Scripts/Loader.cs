@@ -5,12 +5,11 @@ using UnityEngine;
 public class Loader : MonoBehaviour
 {
     public GameObject gameManager;
+    public static GameManager instance;
+    public static int level = 3;
     
     void Awake()
     {
-        if (GameManager.instance == null)
-        {
-            Instantiate(gameManager);
-        }
+        Instantiate(gameManager);
     }
 }
