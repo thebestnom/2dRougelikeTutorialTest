@@ -5,14 +5,18 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public float levelStartDelay = 2f;
     public float turnDelay = .1f;
     public BoardManager boardScript;
     public int playerFoodPoint = 100;
     [HideInInspector] public bool playerTurn = true;
 
+    private UnityEngine.UI.Text levelText;
+    private GameObject levelImage;
     private int level;
     private List<Enemy> enemies;
     private bool enemiesMoving;
+    private bool doingSetup;
 
     private void Awake()
     {
@@ -23,18 +27,30 @@ public class GameManager : MonoBehaviour
         InitGame();
     }
 
-    public void ReloadScene()
-    {
-    }
-
     private void InitGame()
     {
+        doingSetup = true;
+
+        levelImage = GameObject.Find("LevelImage");
+        levelText = GameObject.Find("LevelText").GetComponent<UnityEngine.UI.Text>();
+        levelText.text = $"Day {level}";
+        levelImage.SetActive(true);
+        Invoke(nameof(HideLevelImage), levelStartDelay);
+        
         enemies.Clear();
         boardScript.SetupScene(level);
     }
 
+    private void HideLevelImage()
+    {
+        levelImage.SetActive(false);
+        doingSetup = false;
+    }
+
     public void GameOver()
     {
+        levelText.text = $"After {level} of days, you starved.";
+        levelImage.SetActive(true);
         enabled = false;
     }
 
@@ -45,7 +61,7 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        if (playerTurn || enemiesMoving)
+        if (playerTurn || enemiesMoving || doingSetup)
         {
             return;
         }
@@ -62,11 +78,6 @@ public class GameManager : MonoBehaviour
         {
             enemy.MoveEnemy();
             yield return new WaitForSeconds(enemy.moveTime);
-        }
-        
-        if (enemies.Count < Player.MoveAnimationTime)
-        {
-            yield return new WaitForSeconds(Player.MoveAnimationTime - (enemies.Count * 0.1f));
         }
 
         playerTurn = true;

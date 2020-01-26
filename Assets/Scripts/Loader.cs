@@ -6,7 +6,7 @@ public class Loader : MonoBehaviour
 {
     public GameObject gameManager;
     public static GameManager instance;
-    public static int level = 3;
+    public static int level = 1;
     
     void Awake()
     {
